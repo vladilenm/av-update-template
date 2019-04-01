@@ -1,10 +1,11 @@
-const {src, dest, series} = require('gulp')
+const {src, dest, series, watch} = require('gulp')
 const sass = require('gulp-sass')
 const csso = require('gulp-csso')
 const htmlmin = require('gulp-htmlmin')
 const include = require('gulp-file-include')
 const autoprefixer = require('gulp-autoprefixer')
 const del = require('del')
+const sync = require('browser-sync').create()
 
 const AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -43,5 +44,15 @@ function clean() {
   return del('dist')
 }
 
+function serve() {
+  sync.init({
+    server: './dist'
+  })
+
+  watch('src/scss/*.scss', series(scss)).on('change', sync.reload)
+  watch('src/*.html', series(html)).on('change', sync.reload)
+}
+
 exports.build = series(clean, html, scss)
+exports.serve = series(serve, clean, html, scss)
 
